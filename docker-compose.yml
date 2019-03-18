@@ -1,0 +1,15 @@
+---
+version: '3'
+services:
+  pg:
+    image: postgres:11-alpine
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - db-net
+
+networks:
+  db-net:
+
+volumes:
+  db-data:
