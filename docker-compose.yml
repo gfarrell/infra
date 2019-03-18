@@ -1,15 +1,50 @@
 ---
 version: '3'
 services:
+
   pg:
     image: postgres:11-alpine
     volumes:
       - db-data:/var/lib/postgresql/data
     networks:
-      - db-net
+      - backend
+    environment:
+      POSTGRES_DB: mailman
+      POSTGRES_USER: "${PG_USER}"
+      POSTGRES_PASSWORD: "${PG_PASS}"
+
+  mailman-core:
+    image: quay.io/maxking/mailman-core:0.2
+    volumes:
+      - mm-core-data:/opt/mailman
+    depends_on:
+      - pg
+    networks:
+      - backend
+    environment:
+      HYPERKITTY_API_KEY: "${HYPERKITTY_API_KEY}"
+      DATABASE_URL: "postgres://${PG_USER}:${PG_PASS}@pg:5432/mailman"
+      DATABASE_TYPE: "postgres"
+      DATABASE_CLASS: "mailman.database.postgresql.PostgreSQLDatabase"
+
+  mailman-web:
+    image: quay.io/maxking/mailman-web:0.2
+    volumes:
+      - mm-web-data:/opt/mailman-web-data
+    networks:
+      - backend
+    environment:
+      SERVE_FROM_DOMAIN: mailman.gtf.io
+      HYPERKITTY_API_KEY: "${HYPERKITTY_API_KEY}"
+      MAILMAN_ADMIN_USER: "${MAILMAN_ADMIN_USER}"
+      MAILMAN_ADMIN_EMAIL: "${MAILMAN_ADMIN_EMAIL}"
+      SECRET_KEY: "${MAILMAN_SECRET_KEY}"
+      DATABASE_URL: "postgres://${PG_USER}:${PG_PASS}@pg:5432/mailman"
 
 networks:
-  db-net:
+  backend:
 
 volumes:
   db-data:
+  mm-core-data:
+  mm-web-data:
