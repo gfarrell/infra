@@ -2,6 +2,15 @@
 version: '3'
 services:
 
+  nginx:
+    build: ./nginx
+    depends_on:
+      - mailman-web
+    networks:
+      - backend
+    ports:
+      - 8080:80
+
   pg:
     image: postgres:11-alpine
     volumes:
@@ -34,7 +43,8 @@ services:
     networks:
       - backend
     environment:
-      SERVE_FROM_DOMAIN: mailman.gtf.io
+      UWSGI_STATIC_MAP: /static=/opt/mailman-web-data/static
+      SERVE_FROM_DOMAIN: mailman.gtf
       HYPERKITTY_API_KEY: "${HYPERKITTY_API_KEY}"
       MAILMAN_ADMIN_USER: "${MAILMAN_ADMIN_USER}"
       MAILMAN_ADMIN_EMAIL: "${MAILMAN_ADMIN_EMAIL}"
