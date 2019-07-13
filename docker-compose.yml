@@ -32,9 +32,13 @@ services:
       - mm-core-data:/opt/mailman
     depends_on:
       - pg
+      - exim
     networks:
       - backend
     environment:
+      MTA: "exim"
+      MM_HOSTNAME: "mailman-core"
+      SMTP_HOST: "exim"
       HYPERKITTY_API_KEY: "${HYPERKITTY_API_KEY}"
       DATABASE_URL: "postgres://${PG_USER}:${PG_PASS}@pg:5432/mailman"
       DATABASE_TYPE: "postgres"
@@ -54,6 +58,18 @@ services:
       MAILMAN_ADMIN_EMAIL: "${MAILMAN_ADMIN_EMAIL}"
       SECRET_KEY: "${MAILMAN_SECRET_KEY}"
       DATABASE_URL: "postgres://${PG_USER}:${PG_PASS}@pg:5432/mailman"
+      SMTP_HOST: "exim"
+
+  exim:
+    build: ./exim
+    networks:
+      - backend
+    volumes:
+      # exim4 needs access to the mailman binaries apparently
+      # https://mailman.readthedocs.io/en/release-3.0/src/mailman/docs/MTA.html
+      - mm-core-data:/opt/mailman/core
+    ports:
+      - "25:25"
 
 networks:
   backend:

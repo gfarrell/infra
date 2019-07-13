@@ -1,0 +1,6 @@
+mailman3_transport:
+  driver = smtp
+  protocol = lmtp
+  allow_localhost
+  hosts = MM3_LMTP_HOST
+  port = MM3_LMTP_PORT
