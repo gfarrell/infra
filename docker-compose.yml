@@ -6,6 +6,7 @@ services:
     build: ./nginx
     depends_on:
       - mailman-web
+      - jenkins
     networks:
       - backend
     ports:
@@ -52,7 +53,7 @@ services:
       - backend
     environment:
       UWSGI_STATIC_MAP: /static=/opt/mailman-web-data/static
-      SERVE_FROM_DOMAIN: mailman.gtf
+      SERVE_FROM_DOMAIN: mailman.gtf.io
       HYPERKITTY_API_KEY: "${HYPERKITTY_API_KEY}"
       MAILMAN_ADMIN_USER: "${MAILMAN_ADMIN_USER}"
       MAILMAN_ADMIN_EMAIL: "${MAILMAN_ADMIN_EMAIL}"
@@ -71,6 +72,13 @@ services:
     ports:
       - "25:25"
 
+  jenkins:
+    image: jenkins/jenkins:lts
+    networks:
+      - backend
+    volumes:
+      - jenkins-data:/var/jenkins_home
+
 networks:
   backend:
 
@@ -78,3 +86,4 @@ volumes:
   db-data:
   mm-core-data:
   mm-web-data:
+  jenkins-data:
