@@ -19,7 +19,9 @@ Mailman consists of three containers, `mailman-core`, `mailman-web`, and
 `exim` (the MTA).
 
 It's worth noting that to configure the list domains you need to edit
-`exim/25_mm3_macros`.
+`exim/main_mm3_macros` as well as `exim/exim4-config.conf`. The local
+subnet in `docker-compose.yml` also has to match the main relay nets in
+`exim/exim4-config.conf`.
 
 #### NOTES / TODO:
 
