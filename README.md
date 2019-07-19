@@ -9,7 +9,8 @@ infrastructure, which is composed of:
   services or projects.
 
 All these services are run inside docker containers, defined in
-`docker-compose.yml`.
+`docker-compose.yml`. Note that this requires a `.env` file with some
+secrets.
 
 ## Services / Containers
 
