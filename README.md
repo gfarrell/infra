@@ -23,12 +23,33 @@ It's worth noting that to configure the list domains you need to edit
 subnet in `docker-compose.yml` also has to match the main relay nets in
 `exim/exim4-config.conf`.
 
+You will also need to add DKIM keys to `/var/secure/exim-keys` (and make sure
+they have the right permissions):
+
+    mkdir -p /var/secure/exim-keys
+    cd /var/secure/exim-keys
+    openssl genrsa -out dkim.private.key 1024
+    openssl rsa -in dkim.private.key -out dkim.public.key -pubout -outform PEM
+
+Finally, for this to work, add the following records to DNS:
+
+    x._domainkey.<domain>. TXT v=DKIM1; t=y; k=rsa; p=<public key>
+    _domainkey.<domain>. TXT _domainkey.example.com. t=y; o=~;
+
+Remove the `t=y` when everything is confirmed to work. That key pair
+should ideally not change, and don't forget to also add spf records:
+
+    v=spf1 mx a a:infra.gtf.io ip4:67.207.69.43 -all
+
+This is a useful guide for [DKIM with
+exim](https://mikepultz.com/2010/02/using-dkim-in-exim/).
+
 #### NOTES / TODO:
 
 - [x] Exim configuration: change the config file to use the split config.
 - [x] Exim configuration: reorder the routers so the mailman router comes earlier than dns looup.
 - [x] Use ACL to stop exim acting as an open relay on the internet.
-- [ ] Add SPF or something to stop emails being marked as spam.
+- [x] Add SPF or something to stop emails being marked as spam.
 - [ ] Abstract out some of the variables so they can be configured by `docker-compose`.
 
 For access control we want to allow emails from the known subnet (i.e. mailman)
@@ -48,6 +69,11 @@ volume, as well as the site files which are uploaded to the server. Just
 remember to ensure that there is a cronjob for LetsEncrypt:
 
     certbot renew --deploy-hook "docker restart infra_nginx_1"
+
+To create the certificates for the first time, given the server setup I'm using,
+run this:
+
+    certbot certonly --webroot -w /var/www/<service>-acme -d <service>.gtf.io
 
 #### NOTES / TODO:
 

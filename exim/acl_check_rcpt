@@ -91,7 +91,7 @@ acl_check_rcpt:
     message = [SPF] $sender_host_address is not allowed to send mail from \
               ${if def:sender_address_domain {$sender_address_domain}{$sender_helo_name}}.  \
               Please see \
-	      http://www.openspf.org/Why?scope=${if def:sender_address_domain \
+              http://www.openspf.org/Why?scope=${if def:sender_address_domain \
               {mfrom}{helo}};identity=${if def:sender_address_domain \
               {$sender_address}{$sender_helo_name}};ip=$sender_host_address
     log_message = SPF check failed.
@@ -113,12 +113,12 @@ acl_check_rcpt:
     add_header = Received-SPF: ${if eq {$runrc}{0}{pass}\
                                 {${if eq {$runrc}{2}{softfail}\
                                  {${if eq {$runrc}{3}{neutral}\
-				  {${if eq {$runrc}{4}{permerror}\
-				   {${if eq {$runrc}{6}{none}{error}}}}}}}}}\
-				} client-ip=$sender_host_address; \
-				${if def:sender_address_domain \
-				   {envelope-from=${sender_address}; }{}}\
-				helo=$sender_helo_name
+                                  {${if eq {$runrc}{4}{permerror}\
+                                    {${if eq {$runrc}{6}{none}{error}}}}}}}}}\
+    } client-ip=$sender_host_address; \
+    ${if def:sender_address_domain \
+        {envelope-from=${sender_address}; }{}}\
+        helo=$sender_helo_name
 
   warn
     log_message = Unexpected error in SPF check.

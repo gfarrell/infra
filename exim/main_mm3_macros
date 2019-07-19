@@ -17,3 +17,9 @@ MM3_HOME=/opt/mailman/core/var
 # The path to the list receipt (used as the required file when
 # matching list addresses)
 MM3_LISTCHK=MM3_HOME/lists/${local_part}.${domain}
+
+# And some DKIM macros
+DKIM_CANON = relaxed
+DKIM_SELECTOR = x
+DKIM_DOMAIN = lists.gtf.io
+DKIM_PRIVATE_KEY = /var/secure/exim-keys/dkim.private.key

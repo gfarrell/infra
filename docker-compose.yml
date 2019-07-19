@@ -73,6 +73,8 @@ services:
       # exim4 needs access to the mailman binaries apparently
       # https://mailman.readthedocs.io/en/release-3.0/src/mailman/docs/MTA.html
       - mm-core-data:/opt/mailman/core
+      # for DKIM keys
+      - /var/secure/exim-keys:/var/secure/exim-keys
     ports:
       - "25:25"
 

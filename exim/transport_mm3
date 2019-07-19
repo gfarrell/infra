@@ -6,3 +6,7 @@ mailman3_transport:
   hosts = MM3_LMTP_HOST
   port = MM3_LMTP_PORT
   rcpt_include_affixes = true
+  dkim_domain = lists.gtf.io
+  dkim_selector = x
+  dkim_private_key = /var/secure/exim-keys/dkim.private.key
+  dkim_canon = relaxed
