@@ -63,6 +63,10 @@ services:
 
   exim:
     build: ./exim
+    # TODO: enable this option (need to upgrade docker on the server)
+    # exim spawns lots of processes, let's reap 'em
+    # https://docs.docker.com/compose/compose-file/#init
+    # init: true
     networks:
       - backend
     volumes:
@@ -81,6 +85,9 @@ services:
 
 networks:
   backend:
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
 
 volumes:
   db-data:

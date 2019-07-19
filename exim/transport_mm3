@@ -1,6 +1,8 @@
 mailman3_transport:
+  debug_print = "T: email for mailman list $local_part@$domain"
   driver = smtp
   protocol = lmtp
   allow_localhost
   hosts = MM3_LMTP_HOST
   port = MM3_LMTP_PORT
+  rcpt_include_affixes = true

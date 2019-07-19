@@ -1,0 +1,80 @@
+##
+# Router Configuration for exim
+##
+#
+# This file contains ALL the routing configuration for the exim
+# instance. It will route all of our mailman lists to mailman via the
+# mailman3 transport, and everything else will be routed via normal dns
+# lookup. ACL needs to be configured such that the outbound dns lookup
+# only happens for emails which come in via the local subnet on which
+# our other containers sit.
+##
+
+begin routers
+
+# First priority is to deal with incoming messages for our mailing lists
+mailman3_router:
+  driver = accept
+  domains = +mm3_domains
+  require_files = MM3_LISTCHK
+  local_part_suffix_optional
+  local_part_suffix = -admin : \
+     -bounces   : -bounces+* : \
+     -confirm   : -confirm+* : \
+     -join      : -leave     : \
+     -owner     : -request   : \
+     -subscribe : -unsubscribe
+  transport = mailman3_transport
+
+# Then we try to send the email by DNS records (remote SMTP) There are
+# two ways we can do this depending on how we are configured, either via
+# "internet" mode (ie. remote_smtp) or via a smarthost like mailgun who
+# will handle sending for us.
+
+# So, if we are using an internet setup
+.ifdef DCconfig_internet
+# deliver mail to the recipient if recipient domain is a domain we relay
+# for. We do not ignore any target hosts here since delivering to a site
+# local or even a link local address might be wanted here, and if such
+# an address has found its way into the MX record of such a domain, the
+# local admin is probably in a place where that broken MX record could
+# be fixed.
+dnslookup_relay_to_domains:
+  debug_print = "R: dnslookup_relay_to_domains for $local_part@$domain"
+  driver = dnslookup
+  domains = ! +local_domains : +relay_to_domains
+  transport = remote_smtp
+  same_domain_copy_routing = yes
+  dnssec_request_domains = *
+  no_more
+
+# deliver mail directly to the recipient. This router is only reached
+# for domains that we do not relay for. Since we most probably can't
+# have broken MX records pointing to site local or link local IP
+# addresses fixed, we ignore target hosts pointing to these addresses.
+dnslookup:
+  debug_print = "R: dnslookup for $local_part@$domain"
+  driver = dnslookup
+  domains = ! +local_domains
+  transport = remote_smtp
+  same_domain_copy_routing = yes
+  # ignore private rfc1918 and APIPA addresses
+  ignore_target_hosts = 0.0.0.0 : 127.0.0.0/8 : 192.168.0.0/16 :\
+                        172.16.0.0/12 : 10.0.0.0/8 : 169.254.0.0/16 :\
+                        255.255.255.255
+  dnssec_request_domains = *
+  no_more
+.endif
+
+# And if we're using a smarthost setup
+.ifdef DCconfig_smarthost
+smarthost:
+  debug_print = "R: smarthost for $local_part@$domain"
+  driver = manualroute
+  domains = ! +local_domains
+  transport = remote_smtp_smarthost
+  route_list = * DCsmarthost byname
+  host_find_failed = ignore
+  same_domain_copy_routing = yes
+  no_more
+.endif
