@@ -4,7 +4,7 @@ This project is designed to implement and run my personal
 infrastructure, which is composed of:
 
 - GNU Mailman instance to run my mailing lists.
-- Jenkins CI to build my projects.
+- Drone.io CI to build my projects.
 - Nginx serving a couple of sites, and providing reverse-proxies for other
   services or projects.
 
@@ -57,14 +57,14 @@ For access control we want to allow emails from the known subnet (i.e. mailman)
 or for email addresses on our local relay domain, but not for anything else. We
 should also drop the email if it's for a non-existent list.
 
-### Jenkins CI
+### Drone.io CI
 
-Jenkins runs simply in a container, fronted by an nginx reverse proxy.
+Drone runs simply in a container, fronted by an nginx reverse proxy.
 
 ### Nginx
 
 This hosts the gtf.io website, both HTTP and HTTPS. It will also provide
-reverse proxies for mailman and jenkins, and any other apps. The nginx
+reverse proxies for mailman and drone.io, and any other apps. The nginx
 image needs the certificates from LetsEncrypt to be linked in as a
 volume, as well as the site files which are uploaded to the server. Just
 remember to ensure that there is a cronjob for LetsEncrypt:
