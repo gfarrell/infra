@@ -6,7 +6,7 @@ services:
     build: ./nginx
     depends_on:
       - mailman-web
-      - jenkins
+      - drone-ci
     networks:
       - backend
     ports:
@@ -78,12 +78,24 @@ services:
     ports:
       - "25:25"
 
-  jenkins:
-    image: jenkins/jenkins:lts
+  drone-ci:
+    image: drone/drone:1
     networks:
       - backend
     volumes:
-      - jenkins-data:/var/jenkins_home
+      - drone-ci-data:/data
+      # Drone needs to be able to use docker
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      DRONE_USER_CREATE: "username:${CI_USER},machine:false,admin:true"
+      DRONE_USER_FILTER: "${CI_USER}"
+      DRONE_GITHUB_SERVER: https://github.com
+      DRONE_GITHUB_CLIENT_ID: "${GH_CLIENT_ID}"
+      DRONE_GITHUB_CLIENT_SECRET: "${GH_CLIENT_SECRET}"
+      DRONE_RUNNER_CAPACITY: 2
+      DRONE_SERVER_HOST: ci.gtf.io
+      # we'll front this with nginx so use http interally
+      DRONE_SERVER_PROTOCOL: http
 
 networks:
   backend:
@@ -95,4 +107,4 @@ volumes:
   db-data:
   mm-core-data:
   mm-web-data:
-  jenkins-data:
+  drone-ci-data:
