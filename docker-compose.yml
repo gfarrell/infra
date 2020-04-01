@@ -7,6 +7,8 @@ services:
     depends_on:
       - mailman-web
       - drone-ci
+      - logstash
+      - kibana
     networks:
       - backend
     ports:
@@ -97,6 +99,27 @@ services:
       # we'll front this with nginx so use http interally
       DRONE_SERVER_PROTOCOL: http
 
+  logstash:
+    build: ./logstash
+    depends_on:
+      - elasticsearch
+    networks:
+      - backend
+
+  elasticsearch:
+    image: elasticsearch:7.6.1
+    environment:
+      discovery.type: single-node
+    networks:
+      - backend
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+
+  kibana:
+    build: ./kibana
+    networks:
+      - backend
+
 networks:
   backend:
     ipam:
@@ -108,3 +131,4 @@ volumes:
   mm-core-data:
   mm-web-data:
   drone-ci-data:
+  es-data:

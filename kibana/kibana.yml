@@ -1,0 +1,5 @@
+elasticsearch.hosts: ["http://elasticsearch:9200"]
+logging.dest: stdout
+server.host: kibana
+server.basePath: /kibana
+server.rewriteBasePath: false

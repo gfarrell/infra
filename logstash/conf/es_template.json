@@ -1,0 +1,117 @@
+{
+  "version" : 50001,
+  "template" : "logstash-*",
+  "settings" : {
+    "index" : {
+      "refresh_interval" : "5s"
+    }
+  },
+  "mappings" : {
+    "nginx_access" : {
+      "_all" : {
+        "enabled" : false,
+        "norms" : false
+      },
+      "properties" : {
+        "@timestamp" : {
+          "type" : "date"
+        },
+        "body_bytes_sent": {
+          "type" : "integer"
+        },
+        "request_time" : {
+          "type": "double"
+        },
+        "upstream_connect_time": {
+          "type": "double"
+        },
+        "message" : {
+          "type" : "text"
+        },
+        "host" : {
+          "type" : "keyword"
+        },
+        "server_name" : {
+          "type" : "keyword"
+        },
+        "referer" : {
+          "type" : "keyword"
+        },
+        "remote_user" : {
+          "type" : "keyword"
+        },
+        "method" : {
+          "type" : "keyword"
+        },
+        "path" : {
+          "type" : "keyword"
+        },
+        "http_version" : {
+          "type" : "keyword"
+        },
+        "status" : {
+          "type" : "short"
+        },
+        "tags" : {
+          "type" : "keyword"
+        },
+        "useragent" : {
+          "dynamic" : true,
+          "properties" : {
+            "device" : {
+              "type" : "keyword"
+            },
+            "major" : {
+              "type" : "short"
+            },
+            "minor" : {
+              "type" : "short"
+            },
+            "os" : {
+              "type" : "keyword"
+            },
+            "os_name" : {
+              "type" : "keyword"
+            },
+            "patch" : {
+              "type" : "short"
+            }
+          }
+        },
+        "remote_ip" : {
+          "type": "ip"
+        }
+      }
+    },
+    "nginx_error" : {
+      "_all" : {
+        "enabled" : false,
+        "norms" : false
+      },
+      "properties" : {
+        "@timestamp" : {
+          "type" : "date"
+        },
+        "level" : {
+          "type" : "keyword"
+        },
+        "process_id" : {
+          "type" : "integer"
+        },
+        "thread_id" : {
+          "type" : "integer"
+        },
+        "connection_id" : {
+          "type" : "integer"
+        },
+        "message" : {
+          "type" : "text"
+        },
+        "content" : {
+          "type" : "text"
+        }
+      }
+    }
+  },
+  "aliases" : {}
+}
