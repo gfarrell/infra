@@ -1,3 +1,0 @@
-METHOD (OPTIONS|GET|HEAD|POST|PUT|DELETE|TRACE|CONNECT)
-NUMBERORDASH (\d+(\.\d+)?|-)
-NGINX_ACCESS %{IPORHOST:remote_ip} - %{USERNAME:remote_user} \[%{TIMESTAMP_ISO8601:time_iso8601}\] \"%{DATA:server_name}\" \"%{METHOD:method} %{URIPATHPARAM:path} HTTP/%{NUMBER:http_version}\" %{INT:status} %{INT:body_bytes_sent} \"%{DATA:referer}\" \"%{DATA:user_agent}\" %{NUMBER:request_time} %{NUMBERORDASH:upstream_connect_time}
