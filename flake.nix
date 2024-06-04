@@ -5,7 +5,6 @@
     nixpkgs.url = "github:NixOS/nixpkgs/release-23.11";
     flake-parts.url = "github:hercules-ci/flake-parts";
     pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
-    agenix.url = "github:ryantm/agenix";
 
     gtf-io = {
       url = "github:gfarrell/gtf.io/trunk";
@@ -23,27 +22,44 @@
 
       imports = [
         inputs.pre-commit-hooks.flakeModule
+
+        # Allow perSystem to add entries to the default overlay
+        inputs.flake-parts.flakeModules.easyOverlay
       ];
 
       flake = {
         config,
         pkgs,
         ...
-      }: let
-        commonModules = [./common];
-
-        mkSystem = system: extraModules:
-          nixpkgs.lib.nixosSystem {
-            inherit system;
-            modules = commonModules ++ extraModules;
-            specialArgs = {
-              inherit inputs;
-              inherit system;
-            };
-          };
-      in {
+      }: {
         nixosConfigurations = {
-          pharos = mkSystem "x86_64-linux" [./hosts/pharos];
+          pharos = let
+            system = "x86_64-linux";
+          in
+            nixpkgs.lib.nixosSystem {
+              inherit system;
+
+              specialArgs = {
+                inherit inputs;
+              };
+
+              modules = [
+                # make our services available in the package set
+                {
+                  nixpkgs.overlays = [
+                    (_1: _2: {
+                      gtf-io = inputs.gtf-io.packages.${system}.default;
+                    })
+                  ];
+                }
+
+                # Include basic machine config
+                ./common
+
+                # Load machine-specific config
+                ./hosts/pharos
+              ];
+            };
         };
       };
 
@@ -52,17 +68,20 @@
         self',
         inputs',
         pkgs,
-        agenix,
         ...
       }: {
         devShells.default = pkgs.mkShell {
-          nativeBuildInputs = with pkgs; [alejandra nil];
+          nativeBuildInputs = with pkgs; [alejandra nil morph curl];
           shellHook = config.pre-commit.installationScript;
         };
 
         pre-commit.settings.hooks = {
           alejandra.enable = true;
           shellcheck.enable = true;
+        };
+
+        overlayAttrs = {
+          inherit (config.packages) gtf-io;
         };
       };
     };

@@ -1,6 +1,7 @@
 {...}: {
   imports = [./users];
 
+  # freeze the NixOS state
   system.stateVersion = "23.11";
 
   # Clean the /tmp dir on boot

@@ -1,36 +1,25 @@
-{
-  modulesPath,
-  inputs,
-  system,
-  ...
-}: let
-  website-server-port = "2712";
+{modulesPath, ...}: let
+  website-server-port = 8080;
 in {
-  imports = ["${modulesPath}/virtualisation/digital-ocean-image.nix"];
+  imports = [
+    "${modulesPath}/virtualisation/digital-ocean-image.nix"
+    # inputs.self.nixosModules.gtf-io
+    ../../services/gtf-io.nix
+  ];
 
   services.caddy = {
     enable = true;
     virtualHosts."gtf.io".extraConfig = ''
       encode gzip
-      reverse_proxy localhost:${website-server-port}
+      reverse_proxy localhost:${toString website-server-port}
     '';
   };
 
-  systemd.services.gtf-io = {
-    wantedBy = ["multi-user.target"];
-    serviceConfig = {
-      ExecStart = "@${inputs.gtf-io.packages."${system}".default} ${website-server-port}";
-      Restart = "always";
-      User = "webrunner";
-    };
+  # configure the gtf-io website module
+  gtf.gtf-io = {
+    enable = true;
+    port = website-server-port;
   };
-
-  # This user is specific to this host
-  users.users.webrunner = {
-    isSystemUser = true;
-    group = "webrunner";
-  };
-  users.groups.webrunner = {};
 
   networking.firewall = {
     enable = true;

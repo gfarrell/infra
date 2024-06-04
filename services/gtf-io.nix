@@ -27,8 +27,6 @@ in {
 
   # Define the module configuration
   config = {
-    port = cfg.port;
-
     # Run as a systemd service
     systemd.services.gtf-io = rec {
       # Only enable the service if it is enabled in the configuration
@@ -47,7 +45,7 @@ in {
       serviceConfig = {
         Type = "exec";
         # Binary name comes from https://github.com/gfarrell/gtf-io
-        ExecStart = "${pkgs.gtf-io}/bin/gtf-website-server ${config.port}";
+        ExecStart = "${pkgs.gtf-io}/bin/gtf-website-server ${toString cfg.port}";
       };
     };
   };
