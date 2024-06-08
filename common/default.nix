@@ -13,6 +13,9 @@
   # Set all in group wheel as trusted
   nix.settings.trusted-users = ["root" "@wheel"];
 
+  # Enable some features of nix
+  nix.extraOptions = "experimental-features = nix-command flakes";
+
   # Limit the systemd journal size to the lesser of 100MB or 7 days of logs
   services.journald.extraConfig = ''
     SystemMaxUse=100m
