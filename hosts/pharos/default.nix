@@ -3,12 +3,14 @@
 in {
   imports = [
     "${modulesPath}/virtualisation/digital-ocean-image.nix"
-    # inputs.self.nixosModules.gtf-io
     ../../services/gtf-io.nix
   ];
 
   services.caddy = {
     enable = true;
+    globalConfig = ''
+      debug
+    '';
     virtualHosts."gtf.io".extraConfig = ''
       encode gzip
       reverse_proxy localhost:${toString website-server-port}
