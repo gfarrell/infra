@@ -29,3 +29,7 @@ deploy HOST:
                 --flake .#{{HOST}} \
                 --use-remote-sudo \
                 switch
+
+# Update my dependencies
+update-my-deps:
+  nix flake update gtf-io
