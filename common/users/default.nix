@@ -15,6 +15,7 @@ in {
     enable = true;
     ports = [2712];
     settings.PermitRootLogin = "no";
+    settings.PasswordAuthentication = false;
   };
 
   security = {
