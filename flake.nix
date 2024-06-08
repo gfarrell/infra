@@ -44,16 +44,16 @@
               };
 
               modules = [
-                # make our services available in the package set
+                # make our custom services available in the package set
                 {
                   nixpkgs.overlays = [
-                    (_1: _2: {
+                    (final: prev: {
                       gtf-io = inputs.gtf-io.packages.${system}.default;
                     })
                   ];
                 }
 
-                # Include basic machine config
+                # Common machine config
                 ./common
 
                 # Load machine-specific config
@@ -71,7 +71,7 @@
         ...
       }: {
         devShells.default = pkgs.mkShell {
-          nativeBuildInputs = with pkgs; [alejandra nil morph curl];
+          nativeBuildInputs = with pkgs; [alejandra nil morph curl just nixos-rebuild];
           shellHook = config.pre-commit.installationScript;
         };
 
