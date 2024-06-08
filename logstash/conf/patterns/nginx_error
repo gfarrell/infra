@@ -1,2 +1,0 @@
-ERRORDATE %{YEAR}/%{MONTHNUM}/%{MONTHDAY} %{TIME}
-NGINX_ERROR %{ERRORDATE:time_local} \[%{LOGLEVEL:level}\] %{INT:process_id}#%{INT:thread_id}: \*(%{INT:connection_id})? %{GREEDYDATA:description}
