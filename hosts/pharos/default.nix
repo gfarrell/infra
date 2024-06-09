@@ -12,6 +12,9 @@ in {
       debug
     '';
     virtualHosts."gtf.io".extraConfig = ''
+      redir http://www.{host}{uri}
+    '';
+    virtualHosts."www.gtf.io".extraConfig = ''
       encode gzip
       reverse_proxy localhost:${toString website-server-port}
     '';
