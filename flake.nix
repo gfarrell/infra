@@ -7,7 +7,7 @@
     pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
 
     gtf-io = {
-      url = "github:gfarrell/gtf.io/trunk";
+      url = "github:gfarrell/gtf.io/main";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
