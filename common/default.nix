@@ -21,4 +21,7 @@
     SystemMaxUse=100m
     MaxFileSec=7day
   '';
+
+  # Maintain system time with chrony
+  services.chrony.enable = true;
 }
