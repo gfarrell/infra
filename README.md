@@ -28,3 +28,5 @@ Pharos, named after the lighthouse at Alexandria, hosts public-facing services, 
 Things like the gtf.io website need to be explicitly updated in the flake.lock file before you will be able to deploy changes. To do that, just run:
 
     just update-my-deps
+
+This is to avoid accidentally updating the whole flake lockfile (`nix flake update`) which will result in _everything_ in the host configuration being updated, and therefore a very, very long deployment time.
