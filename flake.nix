@@ -31,35 +31,34 @@
         config,
         pkgs,
         ...
-      }: {
+      }: let
+        mkHost = system: extraModules:
+          nixpkgs.lib.nixosSystem {
+            inherit system;
+
+            specialArgs = {
+              inherit inputs;
+            };
+
+            modules = [./common] ++ extraModules;
+          };
+      in {
         nixosConfigurations = {
           pharos = let
             system = "x86_64-linux";
           in
-            nixpkgs.lib.nixosSystem {
-              inherit system;
-
-              specialArgs = {
-                inherit inputs;
-              };
-
-              modules = [
-                # make our custom services available in the package set
-                {
-                  nixpkgs.overlays = [
-                    (final: prev: {
-                      gtf-io = inputs.gtf-io.packages.${system}.default;
-                    })
-                  ];
-                }
-
-                # Common machine config
-                ./common
-
-                # Load machine-specific config
-                ./hosts/pharos
-              ];
-            };
+            mkHost system [
+              # enable some custom packages from inputs
+              {
+                nixpkgs.overlays = [
+                  (final: prev: {
+                    gtf-io = inputs.gtf-io.packages.${system}.default;
+                  })
+                ];
+              }
+              # load machine-specific configuration
+              ./hosts/pharos
+            ];
         };
       };
 

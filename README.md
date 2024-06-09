@@ -9,6 +9,7 @@ My infrastructure is setup as a nix flake, with each host configured as a separa
 Pharos, named after the lighthouse at Alexandria, hosts public-facing services, currently just the gtf.io website while I work out how to do other things.
 
 * [gtf-io](https://github.com/gfarrell/gtf-io)
+* a [prometheus](https://prometheus.io) server to collect metrics
 
 ## Usage
 
