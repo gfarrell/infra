@@ -14,6 +14,10 @@ make-image HOST:
 check-flake:
   nix flake check
 
+# Use nix-tree to view the contents of a host's derivation
+view-host-tree HOST:
+  nix-tree .#nixosConfigurations.{{HOST}}.config.system.build.toplevel
+
 # Format all files in the repo
 format-all:
   pre-commit run --all-files

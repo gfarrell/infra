@@ -70,7 +70,7 @@
         ...
       }: {
         devShells.default = pkgs.mkShell {
-          nativeBuildInputs = with pkgs; [alejandra nil morph curl just nixos-rebuild];
+          nativeBuildInputs = with pkgs; [alejandra nil morph curl just nix-tree nixos-rebuild];
           shellHook = config.pre-commit.installationScript;
         };
 
