@@ -1,4 +1,8 @@
-{modulesPath, ...}: let
+{
+  config,
+  modulesPath,
+  ...
+}: let
   website-server-port = 8080;
 in {
   imports = [
@@ -20,14 +24,14 @@ in {
     '';
     virtualHosts."www.gtf.io".extraConfig = ''
       encode gzip
-      reverse_proxy localhost:${toString website-server-port}
+      reverse_proxy localhost:${toString config.gtf.gtf-io.port}
     '';
     virtualHosts."prometheus.gtf.io".extraConfig = ''
       basicauth {
         gideon $2a$14$fxieAGKHEnHRgTDTl7AhQ.1NxAakImNUDbVasXVp0OPpDcyZsJgk2
       }
       encode gzip
-      reverse_proxy localhost:9090
+      reverse_proxy localhost:${toString config.services.prometheus.port}
     '';
   };
 
@@ -53,6 +57,7 @@ in {
   # And run a local prometheus server
   services.prometheus = {
     enable = true;
+    port = 9090;
     globalConfig.scrape_interval = "15s";
     scrapeConfigs = [
       {
@@ -60,7 +65,7 @@ in {
         static_configs = [
           {
             targets = [
-              "localhost:9000" # pharos system metrics
+              "localhost:${toString config.services.prometheus.exporters.node.port}" # pharos system metrics
               "localhost:2019" # caddy exports its own metrics here
             ];
           }
