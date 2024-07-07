@@ -24,4 +24,7 @@
 
   # Maintain system time with chrony
   services.chrony.enable = true;
+
+  # Enable fail2ban for basic security on SSH
+  services.fail2ban.enable = true;
 }
