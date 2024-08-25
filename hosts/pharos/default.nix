@@ -4,10 +4,12 @@
   ...
 }: let
   website-server-port = 8080;
+  draft-server-port = 8082;
 in {
   imports = [
     "${modulesPath}/virtualisation/digital-ocean-image.nix"
     ../../services/gtf-io.nix
+    ../../services/gtf-io-drafts.nix
   ];
 
   virtualisation.digitalOceanImage.compressionMethod = "bzip2";
@@ -37,12 +39,20 @@ in {
       encode gzip
       reverse_proxy localhost:${toString config.services.grafana.settings.server.http_port}
     '';
+    virtualHosts."drafts.gtf.io".extraConfig = ''
+      encode gzip
+      reverse_proxy localhost:${toString config.gtf.draft-server.port}
+    '';
   };
 
   # configure the gtf-io website module
   gtf.gtf-io = {
     enable = true;
     port = website-server-port;
+  };
+  gtf.draft-server = {
+    enable = true;
+    port = draft-server-port;
   };
 
   networking.firewall = {
