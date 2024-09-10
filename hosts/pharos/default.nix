@@ -140,7 +140,7 @@ in {
             from = "2024-07-01";
             schema = "v13";
             store = "tsdb";
-            object_store = "gcs";
+            object_store = "filesystem";
             index = {
               prefix = "index_";
               period = "24h";
