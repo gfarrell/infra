@@ -121,11 +121,11 @@
         "pre-commit-hooks": "pre-commit-hooks"
       },
       "locked": {
-        "lastModified": 1726435100,
-        "narHash": "sha256-JUvu7HSrIWClNSTG4ECh82zaccvRcmXRTpgatq8Ekxk=",
+        "lastModified": 1726525459,
+        "narHash": "sha256-qoi+IEs0Yt7gBpnYU2lqSPrBYkuBsXfuheS4lG4FNac=",
         "owner": "gfarrell",
         "repo": "gtf.io",
-        "rev": "e2094960df421bd8416cf8d1003d8316291e619f",
+        "rev": "93578361b05a8a63396c304c3ec2f6cc30f3224f",
         "type": "github"
       },
       "original": {
