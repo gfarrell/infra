@@ -3,8 +3,22 @@
   modulesPath,
   ...
 }: let
-  website-server-port = 8080;
-  draft-server-port = 8082;
+  ports = {
+    website = {
+      server = 8080;
+      drafts = 8082;
+    };
+    monitoring = {
+      prometheus = {
+        node-exporter = 9000;
+        server = 9090;
+      };
+      grafana = 9080;
+      loki = 9085;
+      promtail = 9086;
+    };
+    headscale = 9820;
+  };
 in {
   imports = [
     "${modulesPath}/virtualisation/digital-ocean-image.nix"
@@ -43,16 +57,19 @@ in {
       encode gzip
       reverse_proxy localhost:${toString config.gtf.draft-server.port}
     '';
+    virtualHosts."headscale.net.gtf.io".extraConfig = ''
+      reverse_proxy localhost:${toString config.services.headscale.port}
+    '';
   };
 
   # configure the gtf-io website module
   gtf.gtf-io = {
     enable = true;
-    port = website-server-port;
+    port = ports.website.server;
   };
   gtf.draft-server = {
     enable = true;
-    port = draft-server-port;
+    port = ports.website.drafts;
   };
 
   networking.firewall = {
@@ -64,14 +81,14 @@ in {
   # https://wiki.nixos.org/wiki/Prometheus
   services.prometheus.exporters.node = {
     enable = true;
-    port = 9000;
+    port = ports.monitoring.prometheus.node-exporter;
     enabledCollectors = ["systemd"];
     listenAddress = "localhost";
   };
   # And run a local prometheus server
   services.prometheus = {
     enable = true;
-    port = 9090;
+    port = ports.monitoring.prometheus.server;
     globalConfig.scrape_interval = "15s";
     scrapeConfigs = [
       {
@@ -92,7 +109,7 @@ in {
     enable = true;
     settings.server = {
       http_addr = "127.0.0.1";
-      http_port = 9080;
+      http_port = ports.monitoring.grafana;
       domain = "monitor.gtf.io";
     };
 
@@ -119,7 +136,7 @@ in {
   services.loki = {
     enable = true;
     configuration = {
-      server.http_listen_port = 9085;
+      server.http_listen_port = ports.monitoring.loki;
       auth_enabled = false;
       ingester = {
         lifecycler = {
@@ -181,7 +198,7 @@ in {
     enable = true;
     configuration = {
       server = {
-        http_listen_port = 9086;
+        http_listen_port = ports.monitoring.promtail;
         grpc_listen_port = 0;
       };
       positions.filename = "/tmp/positions.yaml";
@@ -208,6 +225,29 @@ in {
           ];
         }
       ];
+    };
+  };
+
+  # headscale for device access
+  services.headscale = {
+    enable = true;
+    address = "127.0.0.1";
+    port = ports.headscale;
+
+    settings = {
+      server_url = "https://headscale.net.gtf.io";
+
+      dns_config = {
+        base_domain = "net.gtf.io";
+        magic_dns = true;
+        nameservers = [
+          "https://dns.mullvad.net"
+          "1.1.1.1"
+          "1.0.0.1"
+          "2606:4700:4700::1111"
+          "2606:4700:4700::1001"
+        ];
+      };
     };
   };
 
