@@ -2,19 +2,64 @@
   config,
   modulesPath,
   inputs,
+  lib,
+  pkgs,
   ...
 }: let
   website-server-port = 8080;
   draft-server-port = 8082;
+  wedding-website-port = 8084;
+  postgres-port = 5432;
+
+  databases = {
+    wedding = {
+      name = "wedding-website";
+      user = "wedding-website";
+    };
+  };
 in {
   imports = [
     "${modulesPath}/virtualisation/digital-ocean-image.nix"
     inputs.agenix.nixosModules.default
     ../../services/gtf-io.nix
     ../../services/gtf-io-drafts.nix
+    ../../services/wedding-website.nix
   ];
 
   virtualisation.digitalOceanImage.compressionMethod = "bzip2";
+
+  services.postgresql = {
+    enable = true;
+    package = pkgs.postgresql_16;
+
+    settings = {
+      port = postgres-port;
+    };
+
+    # Services will each have their own user, which then connects to
+    # the database via this identmap
+    identMap = ''
+      users_map postgres postgres
+      users_map gideon postgres
+      users_map root postgres
+      users_map wedding-website wedding-website
+    '';
+
+    authentication = lib.mkOverride 10 ''
+      #type   database   DBUser     auth-method   optional_ident_map
+      local   all        postgres   peer          map=users_map
+      local   sameuser   all        peer          map=users_map
+    '';
+
+    ensureDatabases = [databases.wedding.name];
+
+    ensureUsers = [
+      {
+        name = databases.wedding.user;
+        ensureDBOwnership = true;
+      }
+    ];
+  };
 
   services.caddy = {
     enable = true;
@@ -29,6 +74,13 @@ in {
     virtualHosts."www.gtf.io".extraConfig = ''
       encode gzip
       reverse_proxy localhost:${toString config.gtf.gtf-io.port}
+    '';
+    virtualHosts."g-and-t.wedding".extraConfig = ''
+      redir http://www.{host}{uri}
+    '';
+    virtualHosts."www.g-and-t.wedding".extraConfig = ''
+      encode gzip
+      reverse_proxy localhost:${toString config.gtf.wedding-website.port}
     '';
     virtualHosts."prometheus.gtf.io".extraConfig = ''
       basicauth {
@@ -57,6 +109,16 @@ in {
     port = draft-server-port;
   };
 
+  # configure the wedding website module
+  gtf.wedding-website = {
+    enable = true;
+    port = wedding-website-port;
+    db-host = "/run/postgresql";
+    db-port = postgres-port;
+    db-user = databases.wedding.user;
+    db-name = databases.wedding.name;
+  };
+
   networking.firewall = {
     enable = true;
     allowedTCPPorts = [80 443];
@@ -70,6 +132,11 @@ in {
     enabledCollectors = ["systemd"];
     listenAddress = "localhost";
   };
+  services.prometheus.exporters.postgres = {
+    enable = true;
+    listenAddress = "0.0.0.0";
+    port = 9187;
+  };
   # And run a local prometheus server
   services.prometheus = {
     enable = true;
@@ -82,6 +149,7 @@ in {
           {
             targets = [
               "localhost:${toString config.services.prometheus.exporters.node.port}" # pharos system metrics
+              "localhost:${toString config.services.prometheus.exporters.postgres.port}" # postgres metrics
               "localhost:2019" # caddy exports its own metrics here
             ];
           }

@@ -37,3 +37,4 @@ deploy HOST:
 # Update my dependencies
 update-my-deps:
   nix flake update gtf-io
+  nix flake update wedding-website

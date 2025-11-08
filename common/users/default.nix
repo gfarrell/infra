@@ -12,6 +12,14 @@ in {
     packages = with pkgs; [htop ripgrep neovim tmux zsh];
   };
 
+  # System user for wedding-website service
+  users.users.wedding-website = {
+    isSystemUser = true;
+    group = "wedding-website";
+  };
+
+  users.groups.wedding-website = {};
+
   services.openssh = {
     enable = true;
     ports = [2712];

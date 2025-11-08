@@ -15,6 +15,11 @@
       url = "github:gfarrell/gtf.io/main";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    wedding-website = {
+      url = "git+ssh://git@git.sr.ht/~gtf/wedding-website";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs @ {
@@ -58,6 +63,7 @@
                 nixpkgs.overlays = [
                   (final: prev: {
                     gtf-io = inputs.gtf-io.packages.${system}.default;
+                    wedding-website = inputs.wedding-website.packages.${system}.default;
                   })
                 ];
               }
@@ -93,7 +99,7 @@
         };
 
         overlayAttrs = {
-          inherit (config.packages) gtf-io;
+          inherit (config.packages) gtf-io wedding-website;
         };
       };
     };

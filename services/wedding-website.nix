@@ -54,25 +54,11 @@ in {
 
   config = lib.mkIf cfg.enable {
     # Configure agenix secrets
-    age.secrets.wedding-website-db-password = {
-      file = ../secrets/wedding-website-db-password.age;
-      mode = "400";
-      owner = "wedding-website";
-    };
-
     age.secrets.wedding-website-rsvp-password = {
       file = ../secrets/wedding-website-rsvp-password.age;
       mode = "400";
       owner = "wedding-website";
     };
-
-    # Create dedicated system user and group
-    users.users.wedding-website = {
-      isSystemUser = true;
-      group = "wedding-website";
-    };
-
-    users.groups.wedding-website = {};
 
     systemd.services.wedding-website = {
       wantedBy = ["multi-user.target"];
@@ -97,7 +83,6 @@ in {
             --db-port ${toString cfg.db-port} \
             --db-name "${cfg.db-name}" \
             --db-user "${cfg.db-user}" \
-            --db-password-path "${config.age.secrets.wedding-website-db-password.path}" \
             --rsvp-password-path "${config.age.secrets.wedding-website-rsvp-password.path}"
         '';
       };

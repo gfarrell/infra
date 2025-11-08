@@ -6,6 +6,5 @@ let
   allKeys = [leviathan pharos];
 in {
   # Wedding website secrets
-  "wedding-website-db-password.age".publicKeys = allKeys;
   "wedding-website-rsvp-password.age".publicKeys = allKeys;
 }
