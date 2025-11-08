@@ -1,6 +1,7 @@
 {
   config,
   modulesPath,
+  inputs,
   ...
 }: let
   website-server-port = 8080;
@@ -8,6 +9,7 @@
 in {
   imports = [
     "${modulesPath}/virtualisation/digital-ocean-image.nix"
+    inputs.agenix.nixosModules.default
     ../../services/gtf-io.nix
     ../../services/gtf-io-drafts.nix
   ];

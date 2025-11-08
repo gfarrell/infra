@@ -2,3 +2,8 @@ tags
 .env
 result
 .direnv
+
+# Agenix: ignore everything in secrets except .age and .nix files
+secrets/*
+!secrets/*.age
+!secrets/*.nix

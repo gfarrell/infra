@@ -4,7 +4,7 @@
   lib,
   ...
 }: let
-    cfg = config.gtf.wedding-website;
+  cfg = config.gtf.wedding-website;
 in {
   options = {
     gtf.wedding-website = {
@@ -43,38 +43,52 @@ in {
         default = "wedding-website";
       };
 
-      db-password = lib.mkOption {
-        type = lib.types.str;
-        description = "The password for the PostgreSQL user.";
-      };
-
       db-name = lib.mkOption {
         type = lib.types.str;
         description = "The name of the PostgreSQL database for this service.";
         example = "wedding-website";
         default = "wedding-website";
       };
-
-      rsvp-password = lib.mkOption {
-        type = lib.types.str;
-        description = "The password for the RSVP pages.";
-      };
     };
   };
 
-  config = {
-    systemd.services.wedding-website = rec {
-      inherit (cfg) enable;
+  config = lib.mkIf cfg.enable {
+    # Configure agenix secrets
+    age.secrets.wedding-website-db-password = {
+      file = ../secrets/wedding-website-db-password.age;
+      mode = "400";
+      owner = "wedding-website";
+    };
 
+    age.secrets.wedding-website-rsvp-password = {
+      file = ../secrets/wedding-website-rsvp-password.age;
+      mode = "400";
+      owner = "wedding-website";
+    };
+
+    # Create dedicated system user and group
+    users.users.wedding-website = {
+      isSystemUser = true;
+      group = "wedding-website";
+    };
+
+    users.groups.wedding-website = {};
+
+    systemd.services.wedding-website = {
       wantedBy = ["multi-user.target"];
       after = [
         "network.target"
         "postgresql.service"
       ];
-      requires = after;
+      requires = [
+        "network.target"
+        "postgresql.service"
+      ];
 
       serviceConfig = {
         Type = "exec";
+        User = "wedding-website";
+        Group = "wedding-website";
         ExecStart = ''
           ${pkgs.wedding-website}/bin/wedding-website \
             --production \
@@ -83,8 +97,8 @@ in {
             --db-port ${toString cfg.db-port} \
             --db-name "${cfg.db-name}" \
             --db-user "${cfg.db-user}" \
-            --db-password "${cfg.db-password}" \
-            --rsvp-password "${cfg.rsvp-password}"
+            --db-password-path "${config.age.secrets.wedding-website-db-password.path}" \
+            --rsvp-password-path "${config.age.secrets.wedding-website-rsvp-password.path}"
         '';
       };
     };

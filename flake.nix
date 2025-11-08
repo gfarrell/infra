@@ -2,9 +2,14 @@
   description = "Infrastructure build image";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/release-24.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/25.05";
     flake-parts.url = "github:hercules-ci/flake-parts";
     pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
+
+    agenix = {
+      url = "github:ryantm/agenix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     gtf-io = {
       url = "github:gfarrell/gtf.io/main";
@@ -70,13 +75,21 @@
         ...
       }: {
         devShells.default = pkgs.mkShell {
-          nativeBuildInputs = with pkgs; [alejandra nil morph curl just nix-tree nixos-rebuild];
+          nativeBuildInputs = with pkgs; [
+            alejandra
+            inputs'.agenix.packages.agenix
+            nil
+            morph
+            curl
+            just
+            nix-tree
+            nixos-rebuild
+          ];
           shellHook = config.pre-commit.installationScript;
         };
 
         pre-commit.settings.hooks = {
           alejandra.enable = true;
-          shellcheck.enable = true;
         };
 
         overlayAttrs = {
