@@ -71,17 +71,41 @@ in {
     '';
     virtualHosts."gtf.io".extraConfig = ''
       redir http://www.{host}{uri}
+      log {
+        output file /var/log/caddy/gtf.io.log {
+          mode 644
+        }
+        format json
+      }
     '';
     virtualHosts."www.gtf.io".extraConfig = ''
       encode gzip
       reverse_proxy localhost:${toString config.gtf.gtf-io.port}
+      log {
+        output file /var/log/caddy/gtf.io.log {
+          mode 644
+        }
+        format json
+      }
     '';
     virtualHosts."g-and-t.wedding".extraConfig = ''
       redir http://www.{host}{uri}
+      log {
+        output file /var/log/caddy/g-and-t.wedding.log {
+          mode 644
+        }
+        format json
+      }
     '';
     virtualHosts."www.g-and-t.wedding".extraConfig = ''
       encode gzip
       reverse_proxy localhost:${toString config.gtf.wedding-website.port}
+      log {
+        output file /var/log/caddy/g-and-t.wedding.log {
+          mode 644
+        }
+        format json
+      }
     '';
     virtualHosts."prometheus.gtf.io".extraConfig = ''
       basicauth {
@@ -89,14 +113,32 @@ in {
       }
       encode gzip
       reverse_proxy localhost:${toString config.services.prometheus.port}
+      log {
+        output file /var/log/caddy/prometheus.gtf.io.log {
+          mode 644
+        }
+        format json
+      }
     '';
     virtualHosts.${config.services.grafana.settings.server.domain}.extraConfig = ''
       encode gzip
       reverse_proxy localhost:${toString config.services.grafana.settings.server.http_port}
+      log {
+        output file /var/log/caddy/${config.services.grafana.settings.server.domain}.log {
+          mode 644
+        }
+        format json
+      }
     '';
     virtualHosts."drafts.gtf.io".extraConfig = ''
       encode gzip
       reverse_proxy localhost:${toString config.gtf.draft-server.port}
+      log {
+        output file /var/log/caddy/drafts.gtf.io.log {
+          mode 644
+        }
+        format json
+      }
     '';
   };
 
@@ -275,6 +317,58 @@ in {
             {
               source_labels = ["__journal__systemd_unit"];
               target_label = "unit";
+            }
+          ];
+        }
+        {
+          job_name = "caddy";
+          static_configs = [
+            {
+              targets = ["localhost"];
+              labels = {
+                job = "caddy";
+                __path__ = "/var/log/caddy/*.log";
+              };
+            }
+          ];
+          pipeline_stages = [
+            {
+              json = {
+                expressions = {
+                  level = "level";
+                  timestamp = "ts";
+                  message = "msg";
+                  remote_ip = "request.remote_ip";
+                  method = "request.method";
+                  host = "request.host";
+                  uri = "request.uri";
+                  referer = "request.headers.Referer[0]";
+                  duration = "duration";
+                  status = "status";
+                };
+              };
+            } {
+              labels = {
+                level = null;
+                timestamp = null;
+                message = null;
+                remote_ip = null;
+                method = null;
+                host = null;
+                uri = null;
+                referer = null;
+                duration = null;
+                status = null;
+              };
+            } {
+              timestamp = {
+                source = "timestamp";
+                format = "RFC3339";
+              };
+            } {
+              output = {
+                source = "message";
+              };
             }
           ];
         }
