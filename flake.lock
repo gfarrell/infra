@@ -406,11 +406,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1762716092,
-        "narHash": "sha256-gf7JD67OokgHtPuJfhYV8/4/8AQ31y5knQipn/913ek=",
+        "lastModified": 1762716961,
+        "narHash": "sha256-LJ+JVNeCA2kRSx5sVlezY1YhobehEb3awQ2/y6gaAAw=",
         "ref": "refs/heads/main",
-        "rev": "3bdbbe23c0d1984fc159338bd2db0bb7a298d349",
-        "revCount": 58,
+        "rev": "b7155585301beff39f7573aadf4a385c799e5744",
+        "revCount": 59,
         "type": "git",
         "url": "ssh://git@git.sr.ht/~gtf/wedding-website"
       },

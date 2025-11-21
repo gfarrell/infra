@@ -41,6 +41,7 @@ in {
     identMap = ''
       users_map postgres postgres
       users_map gideon postgres
+      users_map postgres-exporter postgres
       users_map root postgres
       users_map wedding-website wedding-website
     '';
