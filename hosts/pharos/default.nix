@@ -343,6 +343,7 @@ in {
                   host = "request.host";
                   uri = "request.uri";
                   referer = "request.headers.Referer[0]";
+                  agent = "request.headers.\"User-Agent\"[0]";
                   duration = "duration";
                   status = "status";
                 };
@@ -357,6 +358,7 @@ in {
                 host = null;
                 uri = null;
                 referer = null;
+                agent = null;
                 duration = null;
                 status = null;
               };
