@@ -348,7 +348,8 @@ in {
                   status = "status";
                 };
               };
-            } {
+            }
+            {
               labels = {
                 level = null;
                 timestamp = null;
@@ -362,12 +363,14 @@ in {
                 duration = null;
                 status = null;
               };
-            } {
+            }
+            {
               timestamp = {
                 source = "timestamp";
                 format = "RFC3339";
               };
-            } {
+            }
+            {
               output = {
                 source = "message";
               };
